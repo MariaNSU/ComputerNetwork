@@ -88,7 +88,7 @@ int main(){
 	while(1) {
 		while ((rqst = accept(s, (struct sockaddr *)&cliAddr, &len)) > 0) {
             B = readMessage(rqst);
-            char invertedBuf [B.size]; 
+            char* invertedBuf = malloc(B.size * sizeof(char));  
             for(int i = B.size - 1; i >= 0 ; i--){
                 int j = 0;
                 invertedBuf[j] = B.buf[i];
