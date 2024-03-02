@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "utility.h"
 #define MAX_BUFFER_SIZE 1000000
 
 int main(){
@@ -34,12 +34,24 @@ int main(){
 
 	while(1) {
 		recData = recvfrom(s, buffer, MAX_BUFFER_SIZE, 0, (struct sockaddr *) &senderAddr, &len);
-        if (recData > 0){
-            buffer[recData] = '\0';
-            printf("Received message: %s\n", buffer);
+        double recCheckSum = 0;
+        int mesNum = 0;
+        int count = 0;
+        if (recData <= 0){
+            perror("Message was not received!");
+            break;
         }
-        
+        count ++;
+        buffer[recData] = '\0';
+        sscanf(buffer, "%le %d %s", &recCheckSum, &mesNum, buffer);
+        if(recCheckSum != checkSum(buffer)){
+            printf("Message was diverged!\n");
+        }
+        if(count != mesNum){
+            printf("Message number %d was lost!\n", count);
+        }
+        printf("Received message: %s\n", buffer);
+
 	}
-    
     return 0;
 }
