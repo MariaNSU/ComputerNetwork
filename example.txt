@@ -1,0 +1,46 @@
+Hypertext Transfer Protocol (HTTP) messages follow a specific format that consists of a start-line, headers, a blank line, and an optional message body. Here is a general overview of the format of an HTTP message:
+
+1. Start-Line: The start-line is the first line of an HTTP message and contains information about the request or response type. It consists of the following components:
+   - For a request message:
+     - Method: The HTTP method (such as GET, POST, PUT, DELETE) indicating the action to be performed.
+     - Request-URI: The path to the requested resource on the server.
+     - HTTP Version: The version of the HTTP protocol being used (such as HTTP/1.1).
+   - For a response message:
+     - HTTP Version: The version of the HTTP protocol being used.
+     - Status Code: A three-digit numerical code indicating the status of the response (such as 200 for OK, 404 for Not Found).
+
+2. Headers: After the start-line, HTTP messages contain headers that provide additional information about the message. Each header consists of a name-value pair separated by a colon (:) and followed by a line break. Common headers include:
+   - Host: The domain name of the server.
+   - Content-Type: The type of data in the message body.
+   - Content-Length: The length of the message body in bytes.
+   - Other headers for authentication, caching, cookies, etc.
+
+3. Blank Line: After the headers, there is a blank line (CRLF - Carriage Return Line Feed) that separates the headers from the message body. It indicates the end of the headers section.
+
+4. Message Body: The message body is optional and contains data being sent with the request or response, such as form data, JSON, XML, or files. The presence of a message body depends on the type of request or response being sent.
+
+Here is an example of a simple HTTP request message:
+GET /index.html HTTP/1.1
+Host: www.example.com
+User-Agent: Mozilla/5.0
+Accept: text/html
+
+
+And an example of a simple HTTP response message:
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 1234
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Example Page</title>
+</head>
+<body>
+  <h1>Welcome to the Example Page</h1>
+</body>
+</html>
+
+The format of HTTP messages may vary depending on the specific request or response being sent and the headers and content included in the message.
+
+
