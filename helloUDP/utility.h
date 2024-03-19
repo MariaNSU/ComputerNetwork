@@ -2,27 +2,52 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-//func for calculating check sum
-double checkSum(char* message) {
-    double base = 64.0;
-    double sum = 0;
+#include <errno.h>
 
-    size_t len = strlen(message);
-    if(len == 0){
-        printf("Empty message!\n");
-        return 0;
-    }
-    for(int i = 0; i < len; i++){
-        sum+= message[i]*pow(base, len - i - 1);
+#define MAX_BUFFER_SIZE 5
+#define MAX_MESSAGE_SIZE 15
+
+typedef struct chunk {
+    char buf[MAX_BUFFER_SIZE]; 
+    unsigned int ckSum;
+    unsigned int number; 
+    unsigned int quantity; 
+
+} chunk;
+
+void printChunk(chunk* ck){
+    printf("chunk buffer: %s\n", ck->buf);
+    printf("chunk ckSum: %d\n", ck->ckSum);
+    printf("chunk number: %d\n", ck->number);
+    printf("chunk quantity: %d\n", ck->quantity);
+}
+
+//func for calculating check sum
+unsigned int checkSum(char* message) {
+    unsigned int sum = 0;
+    while(*message){
+        sum+= *message;
+        message ++;
     }
     return sum;
-}
-//func for creating message with check sum, number of message and message text 
-char* sendingMessage(char* message, int number){
-    double sum = checkSum(message);
-    size_t len = strlen(message);
-    char* result = (char*)malloc(sizeof(char)*len + sizeof(double)*2);
-    sprintf(result, "%lf %d %s", sum, number + 1, message);
-    return result;
+};
 
+// divide message into chunks and returns massive of chunks
+chunk* divideMessage(char* message){
+    size_t len = strlen(message);
+    unsigned int N = len / (MAX_BUFFER_SIZE) + 1;
+    chunk* chunks = malloc(sizeof(chunk)*N);
+    char buf[MAX_BUFFER_SIZE + 1]; 
+    int ckSum = 0;
+    unsigned int number; 
+    for (int i = 0; i < N; i++) {
+        int start = i*MAX_BUFFER_SIZE;
+        int chunkSize = MAX_BUFFER_SIZE < len - start ? MAX_BUFFER_SIZE: len - start;
+        memmove(chunks[i].buf, message + start, chunkSize);
+        chunks[i].buf[chunkSize] = '\0'; 
+        chunks[i].ckSum = checkSum(chunks[i].buf);
+        chunks[i].number = i; 
+        chunks[i].quantity = N;
+    }
+    return chunks;
 }

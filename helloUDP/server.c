@@ -8,20 +8,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "utility.h"
-#define MAX_BUFFER_SIZE 1000000
 
 int main(){
-    struct sockaddr_in servAddr, senderAddr;
+    struct sockaddr_in servAddr, senderAddr, senderAddr2;
     socklen_t len = sizeof(senderAddr);
-    char buffer [MAX_BUFFER_SIZE];
+    int count = 0, mesNum = 0;
+    unsigned int recCheckSum = 0;    
     int recData;
+    
     int s = socket(AF_INET, SOCK_DGRAM, 0);
     if(s < 0){
         perror("Can not create a server socket!");
         return 0;
     }
    
-
     memset((char*)&servAddr, 0, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     servAddr.sin_port = htons(1040);
@@ -31,27 +31,31 @@ int main(){
         perror("server bind failed");
         return 0;
     }
+    chunk recvChunk;
 
 	while(1) {
-		recData = recvfrom(s, buffer, MAX_BUFFER_SIZE, 0, (struct sockaddr *) &senderAddr, &len);
-        double recCheckSum = 0;
-        int mesNum = 0;
-        int count = 0;
+		recData = recvfrom(s, &recvChunk, sizeof(recvChunk), 0, (struct sockaddr *) &senderAddr, &len);
+        
         if (recData <= 0){
             perror("Message was not received!");
-            break;
+            continue;
         }
-        count ++;
-        buffer[recData] = '\0';
-        sscanf(buffer, "%le %d %s", &recCheckSum, &mesNum, buffer);
-        if(recCheckSum != checkSum(buffer)){
+        if(senderAddr2.sin_addr.s_addr != senderAddr.sin_addr.s_addr){
+            count = 0;
+        }
+        else{
+            count ++;
+        }
+        if(checkSum(recvChunk.buf) != recvChunk.ckSum){
             printf("Message was diverged!\n");
+            continue;
         }
-        if(count != mesNum){
+        if(count != recvChunk.number){
             printf("Message number %d was lost!\n", count);
+            continue;
         }
-        printf("Received message: %s\n", buffer);
-
+        senderAddr2 = senderAddr;
+        printChunk(&recvChunk);
 	}
     return 0;
 }
