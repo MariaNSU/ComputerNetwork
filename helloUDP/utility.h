@@ -1,17 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
-#include <errno.h>
+#include <stdint.h>
 
-#define MAX_BUFFER_SIZE 5
-#define MAX_MESSAGE_SIZE 15
+#define MAX_BUFFER_SIZE 100
+#define MAX_MESSAGE_SIZE 150
 
 typedef struct chunk {
     char buf[MAX_BUFFER_SIZE]; 
-    unsigned int ckSum;
-    unsigned int number; 
-    unsigned int quantity; 
+    uint16_t ckSum;
+    uint8_t number; 
+    uint8_t quantity; 
 
 } chunk;
 

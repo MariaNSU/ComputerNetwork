@@ -1,9 +1,9 @@
-#include "utility.h"
-#include <errno.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
+#include "utility.h"
 
 int main() {
     int sockfd;
@@ -13,7 +13,7 @@ int main() {
 
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("Socket creation failed");
-        return errno;
+        return -1;
     }
 
     memset(&destAddr, 0, sizeof(destAddr));
@@ -22,7 +22,7 @@ int main() {
     inet_pton(AF_INET, "127.0.0.1", &destAddr.sin_addr.s_addr);
     
     printf("Enter a message to send: \n");
-    scanf("%s", message);     
+    fgets(message, MAX_MESSAGE_SIZE, stdin);
 
     chunk* dividedMes = divideMessage(message);
     unsigned int N = dividedMes->quantity;
@@ -33,6 +33,7 @@ int main() {
                         0, (const struct sockaddr *) &destAddr, sizeof(destAddr));
         if(sending < 0){
             perror("Sendto failed!");
+            continue;
         }
         printf("[%d]\n", i);
         printChunk(&dividedMes[i]);
