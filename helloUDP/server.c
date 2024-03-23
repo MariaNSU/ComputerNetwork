@@ -43,7 +43,7 @@ int main(){
     int retval;
     fd_set rfds;
     struct timeval  tv;
-    tv.tv_sec = 10;
+    tv.tv_sec = 30;
     tv.tv_usec = 0;
 
     
@@ -56,9 +56,27 @@ int main(){
             perror("Select error!");
             continue;
         }
-        if (retval <= 0){
-            printf("No data within 10 seconds.\nServer closed!\n");
-            break;
+        //checking how many chunks were received
+        if (retval <= 0) {
+            printf("No data within 30 seconds\nChunks checking starts\n");
+            if(quantity == 0){
+                printf("Nothing to check!\n");
+                break;
+            }
+            char mes[MAX_MESSAGE_SIZE];
+            for(int i = 0; i < quantity; i++){
+                if(!checking[i]) {
+                    printf("Chunk %d was not received!\n", i);
+                    sprintf(mes, "%s %u\n", "Not received: resend chunk number ", i);
+                    int sending = sendto(s,mes, sizeof(mes),
+                                0, (const struct sockaddr *) &senderAddr, sizeof(senderAddr));
+                    if(sending < 0){
+                        perror("Sendto failed!");
+                    }
+                }
+            }
+            printf("Checking ends! All chunks were succesfully received!\n"); 
+            break;           
         }
         if (!FD_ISSET(s, &rfds)){
             printf("Server is not ready for reading!\n");
@@ -95,12 +113,11 @@ int main(){
         }
         checking[mesNum] = 1;
 	}
-
-    for(int i = 0; i < quantity; i++){
-        if(!checking[i]){
-            printf("Chunk %d was not received!\nSend request to client by yourself!\nServer's done everything it can!\n", i);
-            continue;
-        }
+    if(quantity == 0){
+        return 0;
+    }
+    printf("Server ended!\nReceived data:\n");
+    for (int i = 0; i < quantity; i++){
         printf("[%d]:%s\n", i, chunksMassive[i].buf);
     }
     return 0;
